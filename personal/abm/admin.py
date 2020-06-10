@@ -1,6 +1,6 @@
 from django.contrib import admin
 import os
-from .models import Sector, Category, Charge, Destination, Contract, Marital, Province, Location, Neighborhood, Employee
+from .models import Sector, Category, Charge, Destination, Contract, Marital, Sex, Province, Location, Neighborhood, Employee
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Inlines
@@ -69,6 +69,18 @@ class MaritalAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_per_page = 10
 
+class SexAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created', 'updated')
+    list_display_links = ('id', 'name')
+    search_fields = ('name',)
+    list_per_page = 10
+
+class AgreementAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created', 'updated')
+    list_display_links = ('id', 'name')
+    search_fields = ('name',)
+    list_per_page = 10
+
 class ProvinceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'created', 'updated')
     list_display_links = ('id', 'name')
@@ -92,22 +104,27 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_display_links = ('lp', 'nombre')
     search_fields = ('nombre',)
     list_per_page = 10
-    add_form_template = os.path.join(BASE_DIR, 'templates/admin/employee/change_form.html')
+    #add_form_template = os.path.join(BASE_DIR, 'templates/admin/employee/change_form.html')
 
     fieldsets = (
         ('DATOS DE CABECERA', {
-            'fields': ('lp', 'nombre', 'apellido', 'cuil')
+            'fields': ('lp', 'nombre', 'apellido', 'cuil', 'photo', 'sexo'),
         }),
-        ('_', {
-            'fields': ('tdoc', 'ndoc', 'calle', 'numero')
+        ('DATOS PERSONALES', {
+            'fields': ('fecha_nacimiento', 'tdoc', 'ndoc', 'estado_civil', 'calle', 'numero', 'piso', 'unidad', 'provincia', 'localidad', 'barrio', 'email', 'telefono', 'celular', 'cpost', 'observaciones'),
+            'classes': ('collapse',),
+        }),
+        ('DATOS LABORALES', {
+            'fields': ('fechadealta', 'contrato', 'horario'),
+            'classes': ('collapse',),
         }),
     )
 
     inlines = [
         SectorInline,
         CategoryInline,
+        ChargeInline,
         DestinationInline,
-        ChargeInline
     ]
 
     class Media:
@@ -122,6 +139,7 @@ admin.site.register(Charge, ChargeAdmin)
 admin.site.register(Destination, DestinationAdmin)
 admin.site.register(Contract, ContractAdmin)
 admin.site.register(Marital, MaritalAdmin)
+admin.site.register(Sex, SexAdmin)
 admin.site.register(Province, ProvinceAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Neighborhood, NeighborhoodAdmin)
