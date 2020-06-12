@@ -1,6 +1,8 @@
 from django.contrib import admin
 import os
-from .models import Sector, Category, Charge, Destination, Contract, Marital, Sex, Province, Location, Neighborhood, Employee
+from django.forms import Textarea
+from django.db import models
+from .models import Sector, Category, Charge, Destination, Agreement, Marital, Sex, Province, Location, Neighborhood, Employee, Contract, Up, Down, DownReason, Document, Training
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Inlines
@@ -30,6 +32,27 @@ class ChargeInline(admin.TabularInline):
     extra = 0
     verbose_name = "Tarea / Cargo"
     verbose_name_plural = "Tareas / Cargos"
+    list_per_page = 10
+
+class UpInline(admin.TabularInline):
+    model = Up
+    extra = 0
+    verbose_name = "Alta"
+    verbose_name_plural = "Altas"
+    list_per_page = 10
+
+class DownInline(admin.TabularInline):
+    model = Down
+    extra = 0
+    verbose_name = "Baja"
+    verbose_name_plural = "Bajas"
+    list_per_page = 10
+
+class TrainingInline(admin.TabularInline):
+    model = Employee.training.through
+    extra = 0
+    verbose_name = "Formación"
+    verbose_name_plural = "Formaciones"
     list_per_page = 10
 
 # Admins
@@ -99,32 +122,64 @@ class NeighborhoodAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_per_page = 10
 
+class DocumentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created', 'updated')
+    list_display_links = ('id', 'name')
+    search_fields = ('name',)
+    list_per_page = 10
+
+class DownReasonAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created', 'updated')
+    list_display_links = ('id', 'name')
+    search_fields = ('name',)
+    list_per_page = 10
+
+class TrainingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created', 'updated')
+    list_display_links = ('id', 'name')
+    search_fields = ('name',)
+    list_per_page = 10
+
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('lp', 'nombre', 'created', 'updated')
-    list_display_links = ('lp', 'nombre')
+    list_display = ('lp', 'nombre', 'apellido', 'created', 'updated')
+    list_display_links = ('lp', 'nombre', 'apellido')
     search_fields = ('nombre',)
     list_per_page = 10
     #add_form_template = os.path.join(BASE_DIR, 'templates/admin/employee/change_form.html')
 
     fieldsets = (
         ('DATOS DE CABECERA', {
-            'fields': ('lp', 'nombre', 'apellido', 'cuil', 'photo', 'sexo'),
+            'fields': (('lp', 'nombre', 'apellido', 'cuil', 'sexo'), 'photo', 'observaciones'),
         }),
         ('DATOS PERSONALES', {
-            'fields': ('fecha_nacimiento', 'tdoc', 'ndoc', 'estado_civil', 'calle', 'numero', 'piso', 'unidad', 'provincia', 'localidad', 'barrio', 'email', 'telefono', 'celular', 'cpost', 'observaciones'),
+            'fields': (('fecha_nacimiento', 'estado_civil', 'tdoc', 'ndoc'), ('provincia', 'localidad', 'barrio'), ('calle', 'numero', 'piso', 'unidad', 'cpost'), ('telefono', 'celular', 'email')),
             'classes': ('collapse',),
         }),
         ('DATOS LABORALES', {
-            'fields': ('fechadealta', 'contrato', 'horario'),
+            'fields': (('convenio', 'contrato'), ('horario', 'horas_diarias', 'horas_semanales', 'horas_mensuales'), ('obra_social', 'sindicato', 'amtedyc', 'temporada', 'cspfa', 'deportes')),
             'classes': ('collapse',),
         }),
     )
 
+    formfield_overrides = {
+        models.TextField: {
+            'widget': Textarea(
+                attrs={
+                    'rows': 4,
+                    'cols': 80
+                }
+            )
+        }
+    }
+
     inlines = [
+        UpInline,
         SectorInline,
         CategoryInline,
         ChargeInline,
         DestinationInline,
+        TrainingInline,
+        DownInline
     ]
 
     class Media:
@@ -133,11 +188,15 @@ class EmployeeAdmin(admin.ModelAdmin):
         }
 
 # Registers
+admin.site.register(Training, TrainingAdmin)
+admin.site.register(Document, DocumentAdmin)
+admin.site.register(DownReason, DownReasonAdmin)
 admin.site.register(Sector, SectorAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Charge, ChargeAdmin)
 admin.site.register(Destination, DestinationAdmin)
-admin.site.register(Contract, ContractAdmin)
+admin.site.register(Agreement,AgreementAdmin)
+admin.site.register(Contract,ContractAdmin)
 admin.site.register(Marital, MaritalAdmin)
 admin.site.register(Sex, SexAdmin)
 admin.site.register(Province, ProvinceAdmin)

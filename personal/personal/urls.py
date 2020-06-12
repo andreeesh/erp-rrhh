@@ -17,9 +17,9 @@ from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import path
 
-admin.site.index_title = 'Personal CSPFA'
-admin.site.site_header = 'Personal CSPFA'
-admin.site.site_title = 'Personal CSPFA'
+admin.site.index_title = 'Sistema de gestión del Personal'
+admin.site.site_header = 'CSPFA'
+admin.site.site_title = 'CSPFA'
 
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
